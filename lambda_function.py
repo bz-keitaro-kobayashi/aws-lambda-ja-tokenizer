@@ -13,6 +13,7 @@ libmecab = ctypes.cdll.LoadLibrary(os.path.join(libdir, 'libmecab.so'))
 
 import MeCab
 import json
+import unicodedata
 
 # prepare Tagger
 dicdir = os.path.join(os.getcwd(), 'local', 'lib', 'mecab', 'dic', 'ipadic')
@@ -38,6 +39,8 @@ def lambda_handler(event, context):
     unk_feature = False # internal_event.get('unk_feature', False)
 
     print 'Sentence: ', sentence, '; stoptags: ', stoptags
+
+    sentence = unicodedata.normalize('NFC', sentence.decode('utf-8')).encode('utf-8')
 
     tokens = []
     tagger = unk_tagger if unk_feature else default_tagger
