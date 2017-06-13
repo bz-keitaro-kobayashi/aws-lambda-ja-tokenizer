@@ -12,6 +12,7 @@ libdir = os.path.join(os.getcwd(), 'local', 'lib')
 libmecab = ctypes.cdll.LoadLibrary(os.path.join(libdir, 'libmecab.so'))
 
 import MeCab
+import json
 
 # prepare Tagger
 dicdir = os.path.join(os.getcwd(), 'local', 'lib', 'mecab', 'dic', 'ipadic')
@@ -22,9 +23,21 @@ unk_tagger = MeCab.Tagger("-d{} -r{} --unk-feature 未知語,*,*,*,*,*,*,*,*".fo
 DEFAULT_STOPTAGS = ['BOS/EOS']
 
 def lambda_handler(event, context):
-    sentence = event.get('sentence', '').encode('utf-8')
-    stoptags = event.get('stoptags', '').encode('utf-8').split(',') + DEFAULT_STOPTAGS
-    unk_feature = event.get('unk_feature', False)
+    qsa = event.get('queryStringParameters', {}) or {}
+    sentence = qsa.get('s', '').encode('utf-8')
+    stoptags = qsa.get('st', '').encode('utf-8').split(',') + DEFAULT_STOPTAGS
+
+    json_input = None
+    try:
+        json_input = json.loads(event['body'])
+        sentence = json_input.get('s', '').encode('utf-8')
+        stoptags = json_input.get('st', '').encode('utf-8').split(',') + DEFAULT_STOPTAGS
+    except (ValueError, TypeError):
+        pass
+
+    unk_feature = False # internal_event.get('unk_feature', False)
+
+    print 'Sentence: ', sentence, '; stoptags: ', stoptags
 
     tokens = []
     tagger = unk_tagger if unk_feature else default_tagger
@@ -46,7 +59,11 @@ def lambda_handler(event, context):
         if part_of_speech not in stoptags:
             tokens.append(token)
         node = node.next
-    return {"tokens": tokens}
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps({"tokens": tokens})
+    }
 
 def get_part_of_speech(feature):
     return '-'.join([v for v in feature.split(',')[:4] if v != '*'])

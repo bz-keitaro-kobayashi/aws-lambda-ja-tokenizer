@@ -27,7 +27,7 @@ LAMBDA_FILE = os.path.join(BASE_PATH, 'lambda_function.py')
 
 EVENT_FILE = os.path.join(BASE_PATH, 'event.json')
 
-ZIP_FILE = os.path.join(BASE_PATH, 'lambda_function.zip')
+ZIP_FILE = os.path.join(BASE_PATH, 'out/lambda_function.zip')
 ZIP_EXCLUDE_FILE = os.path.join(BASE_PATH, 'exclude.lst')
 
 MECAB_PKG = 'mecab-0.996'
@@ -50,9 +50,10 @@ class SetupTask(BaseSetupTask):
             self.install_mecab_ipadic(pkg_name=MECAB_IPADIC_PKG)
 
     def post_task(self):
-        if confirm('Do you want to install mecab-ipadic-neologd?', default=False):
-            with lcd(self.tempdir):
-                self.install_mecab_neologd(MECAB_NEOLOGD_PKG, MECAB_IPADIC_PKG)
+        pass
+        # if confirm('Do you want to install mecab-ipadic-neologd?', default=False):
+        #     with lcd(self.tempdir):
+        #         self.install_mecab_neologd(MECAB_NEOLOGD_PKG, MECAB_IPADIC_PKG)
 
     def install_mecab(self, pkg_name):
         local('wget -O mecab-0.996.tar.gz "https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7cENtOXlicTFaRUE"')

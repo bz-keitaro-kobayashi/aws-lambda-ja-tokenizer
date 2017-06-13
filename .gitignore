@@ -91,6 +91,6 @@ Temporary Items
 .apdisk
 
 # Project
-lambda_function.zip
+out/lambda_function.zip
 local
 tmp
